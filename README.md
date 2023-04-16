@@ -1,5 +1,5 @@
 # NUTS
-Suplimentary Material For the Paper
+Supplementary Material For the Paper
 
 
 
