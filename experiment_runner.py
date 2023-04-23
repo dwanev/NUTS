@@ -55,13 +55,13 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
                                     unknown_word = 'one', # unlabbeled class
                                     print_nars=False, #  logging level nars
                                     random_dim_reducing_matrix=None, # uses the matrix passed in, if one is passed in.
-                                    out_filename = 'experiment_c6.nal', # store narsese generated in this file for debugging
+                                    out_nal_filename = 'experiment_c6.nal', # store narsese generated in this file for debugging
                                     debug_print=True, #  logging level ours
                                     perform_is_a_specific_label_assert=False, # we check if the unlabbeled word is a "specific word". Only useful in testing where ground truth is known.
                                     perform_general_what_is_assert=False, # this is the form of the question we would need in a real word setting where ground truth is not knowm
                                     check_all_classes_in_loop_with_isa_question_asserts = False, # check the unlabeled instance with one query per class, is it bird?, is it one? is it two? etc
                                     check_all_unlabelled_instances_islike_a_labled_instance_of_the_same_class_with_asserts = False, # TODO get the performance of this
-
+                                    check_is_a_target_and_not_is_all_neg_classes = False,
                                     ):
     """
         1) using the same matrix passed in (otherwise generate one)
@@ -85,16 +85,19 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
     :param perform_general_what_is_assert:
     :param check_all_classes_in_loop_with_isa_question_asserts:
     :param check_all_unlabelled_instances_islike_a_labled_instance_of_the_same_class_with_asserts:
+    :param check_is_a_target_and_not_is_all_neg_classes:
     :return:
     """
 
-
-    assert perform_is_a_specific_label_assert+perform_general_what_is_assert+check_all_classes_in_loop_with_isa_question_asserts+check_all_unlabelled_instances_islike_a_labled_instance_of_the_same_class_with_asserts == 1, "This routine only supports one of the assert types to be true."
+    assert perform_is_a_specific_label_assert\
+           +perform_general_what_is_assert+check_all_classes_in_loop_with_isa_question_asserts\
+           +check_all_unlabelled_instances_islike_a_labled_instance_of_the_same_class_with_asserts\
+           +check_is_a_target_and_not_is_all_neg_classes == 1, "This routine only supports one of the assert types to be true."
     # generate a random projection
     if random_dim_reducing_matrix is None:
         random_dim_reducing_matrix = torch.rand(INPUT_DATA_DIMENSION, reduced_dimensions)
 
-    _delete_file(out_filename)
+    _delete_file(out_nal_filename)
     all_instance_names = []
 
     t0 = time.time()
@@ -135,6 +138,9 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
 
     # Generate IS_A queries for the unlabeled examples
     inference_statement_list = []
+
+    # generate additional asserts for after inference
+    inference_addendum_statement_list = []
 
     # if we can know the unlabelled instance word in advance, we could use this approach. Used in paper.
     if perform_is_a_specific_label_assert:
@@ -189,7 +195,7 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
                     reduced_dim_norm = normalise_torch(reduced_dim)  # between 0 and 1.0
                     _, sub_statement_list = convert_tensor_to_statements(unlabbeled_instance, reduced_dim_norm, truth_threshold=0.5,
                                                                       add_isa_statement=False,
-                                                                      label="ERROR this value should not be used.")
+                                                                      label="ERROR this label value should not be used, so is intensionally set incorrectly.")
                     inference_statement_list.extend(sub_statement_list)
                     # Query what instance we have
                     # statement = create_narsese_isa_question(unlabbeled_instance, is_a_what=mel_by_instance_name[unlabbeled_instance]["label"])
@@ -209,10 +215,43 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
                     print("In valid unseen instance")
                     return None
 
-    if out_filename is not None:
-        with open(out_filename, 'a') as f:
+    if check_is_a_target_and_not_is_all_neg_classes:
+        for unlabbeled_instance in unlabbeled_instance_list:
+            mel = mel_by_instance_name[unlabbeled_instance]["base_data"]
+            if mel.shape[1] * mel.shape[0] == INPUT_DATA_DIMENSION:
+                reduced_dim = torch.matmul(mel.reshape([-1]), random_dim_reducing_matrix)
+                reduced_dim_norm = normalise_torch(reduced_dim)  # between 0 and 1.0
+                _, sub_statement_list = convert_tensor_to_statements(unlabbeled_instance, reduced_dim_norm,
+                                                                     truth_threshold=0.5,
+                                                                     add_isa_statement=False,
+                                                                     label="ERROR this label value should not be used, so is intentionally set incorrectly.")
+                inference_statement_list.extend(sub_statement_list)
+                isa_question = create_narsese_isa_question(unlabbeled_instance, unknown_word)
+                inference_statement_list.append(isa_question)
+                # create an asserts
+                inference_statement_list.append(ASSERT_TRUE_PREFIX)
+
+                for c in word_population_list:
+                    if c != unknown_word:
+                        isa_question = create_narsese_isa_question(unlabbeled_instance, c)
+                        inference_addendum_statement_list.append(isa_question)
+                        # create an asserts
+                        inference_addendum_statement_list.append(ASSERT_FALSE_PREFIX)
+
+            else:
+                print("Instance", instance_name, " has the wrong input shape. skipping. size:",
+                      mel.shape[1] * mel.shape[0])
+                print("In valid unseen instance")
+                return None
+
+
+
+
+
+    if out_nal_filename is not None:
+        with open(out_nal_filename, 'a') as f:
             if debug_print:
-                print("Saving statement_list to ", out_filename)
+                print("Saving statement_list to ", out_nal_filename)
             for statement in statement_list:
                 f.write(statement + '\n')
             for statement in inference_statement_list:
@@ -232,11 +271,32 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
         print("____________________________________")
     t0 = time.time()
     # 'Infer' with the model: show it unlabeled data
-    result = run_experiment_with_nalifier(nalifier, inference_statement_list, reduced_dimensions, print_nars=print_nars, reset_nars=False, debug_print=debug_print)
+    result, assert_ok_count, assert_bad_count, max_tv_correct_label = run_experiment_with_nalifier(nalifier, inference_statement_list, reduced_dimensions, print_nars=print_nars, reset_nars=False, debug_print=debug_print)
     t1 = time.time()
     unlabeled_time_total += (t1 - t0) # add the time to perform inference for the unknown class
     inference_average_time = average_mel_load_time + (unlabeled_time_total/unlabeled_count)
     if debug_print:
         print("Unknown Word", unknown_word, "Inference Time", "Average per instance", inference_average_time, "over ", unlabeled_count, "inferences")
+
+
+    if debug_print:
+        print("____________________________________")
+        print(" Now perform Inference Addendum with ", len(inference_statement_list), "statements")
+        print("____________________________________")
+    t0 = time.time()
+    # 'Extra Infer' with the model: show it unlabeled data
+    _extra_result, assert_ok_count, assert_bad_count, max_tv_addendum_label = run_experiment_with_nalifier(nalifier, inference_addendum_statement_list, reduced_dimensions, print_nars=print_nars, reset_nars=False, debug_print=debug_print)
+    t1 = time.time()
+    if len(inference_addendum_statement_list) > 0:
+        print("____________________________________")
+
+        if max_tv_correct_label < max_tv_addendum_label:
+            result = False
+            print("Incorrect label has higher truth value, marking failed tv:",max_tv_correct_label," addendum tv:",max_tv_addendum_label )
+        print("Result", result, "Addendum Result",  _extra_result, assert_ok_count, assert_bad_count)
+
+
+
+
 
     return result
