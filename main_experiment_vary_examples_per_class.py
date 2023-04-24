@@ -1,8 +1,40 @@
+import json
+import numpy as np
+
+from experiment_wrapper import loop_experiment, create_boxplot_figure_save_to_file
 
 
-from experiment_wrapper import get_results_vary_examples_per_class
+def vary_examples_per_class(reduced_dimensions = 4, filename_prefix = 'examples_per_class'):
+    results = []
+    labels = []
+    array_of_arrays = []
+    for examples_per_class in [2,3,4,5,10,20,40,80,160,320,640,1280]:
+        perf_list, rr = loop_experiment(
+            examples_per_class = examples_per_class,
+            reduced_dimensions = reduced_dimensions,
+            filename_prefix = filename_prefix,
+            repeats=50,
+            AIKR_Limit = 10,
+            check_is_a_target_and_not_is_all_neg_classes=True)
+        average = sum(perf_list) / len(perf_list)
+        print("Vary Examples per class running average, ", average)
+        results.append({"examples_per_class":examples_per_class, "reduced_dimensions":reduced_dimensions, "average":average, "stdev":np.std(perf_list),"max":np.max(perf_list), "min":np.max(perf_list),"n":len(perf_list), "perf_list":perf_list  })
+        print(perf_list)
+        with open(filename_prefix+"_results_for_reduced_dimensions_"+str(reduced_dimensions)+".json","w") as f:
+            json.dump(results,f)
+
+        array_of_arrays.append(perf_list)
+        labels.append("Examples="+str(examples_per_class))
+
+        create_boxplot_figure_save_to_file(
+            data_as_array_of_arrays = array_of_arrays,
+            label_array=labels,
+            output_filename=filename_prefix +'_dimensions_'+str(reduced_dimensions)+"_examples_"+str(examples_per_class) + ".png"
+        )
+
+    return results, array_of_arrays, labels
 
 if __name__ == '__main__':
-    get_results_vary_examples_per_class(reduced_dimensions=4, filename_prefix='4_dimensions_')
+    vary_examples_per_class(reduced_dimensions=4, filename_prefix='4_dimensions_')
 
 

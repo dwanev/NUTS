@@ -1,7 +1,7 @@
 import numpy as np
 import json
 
-from experiment_wrapper import get_results
+from experiment_wrapper import loop_experiment
 from figure_utils import create_boxplot_figure_save_to_file
 
 
@@ -11,7 +11,7 @@ def vary_aikr_experiment():
     filename_prefix = "vary_AIKR_limit"
     reduced_dimensions = 4
     for AIKR_Limit in [10, 20, 100, 500, 1000]:
-        perf_list, rr = get_results(
+        perf_list, rr = loop_experiment(
             examples_per_class=examples_per_class,
             reduced_dimensions=reduced_dimensions,
             filename_prefix=filename_prefix,

@@ -1,6 +1,6 @@
 
 
-from experiment_wrapper import find_perf_from_random_matrix
+from experiment_wrapper import loop_through_words
 
 if __name__ == '__main__':
-    print(find_perf_from_random_matrix())
+    print(loop_through_words())

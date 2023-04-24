@@ -100,11 +100,22 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
     _delete_file(out_nal_filename)
     all_instance_names = []
 
-    t0 = time.time()
-    mel_by_instance_name, label2instance_name = load_files_convert_to_mels(word_population_list, examples_per_class=examples_per_class)
-    t1 = time.time()
+    word_population_list_minus_unlabbeled = word_population_list.copy()
+    word_population_list_minus_unlabbeled.remove(unknown_word)
 
+    t0 = time.time()
+    mel_by_instance_name, label2instance_name = load_files_convert_to_mels(word_population_list_minus_unlabbeled, examples_per_class=examples_per_class)
+    t1 = time.time()
     average_mel_load_time = (t1-t0)/ len(mel_by_instance_name)
+
+    # add the target word (we have an extra instance for it)
+    mel_by_instance_name_target_word, label2instance_name_target_word = load_files_convert_to_mels([unknown_word], examples_per_class=examples_per_class+1)
+    for k in mel_by_instance_name_target_word.keys():
+        mel_by_instance_name[k] = mel_by_instance_name_target_word[k]
+
+    for k in label2instance_name_target_word.keys():
+        label2instance_name[k] = label2instance_name_target_word[k]
+
 
     # describe each instance in narsese
     statement_list = []
