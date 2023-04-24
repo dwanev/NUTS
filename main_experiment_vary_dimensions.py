@@ -9,7 +9,14 @@ if __name__ == '__main__':
     examples_per_class = 3
     filename_prefix = "vary_reduced_dimensions"
     for reduced_dimensions in [2, 3, 4, 5, 10, 20, 40]:
-        perf_list = get_results(examples_per_class=examples_per_class, reduced_dimensions=reduced_dimensions, filename_prefix=filename_prefix, repeats=50)
+        perf_list, rr = get_results(
+            examples_per_class=examples_per_class,
+            reduced_dimensions=reduced_dimensions,
+            filename_prefix=filename_prefix,
+            repeats=50,
+            AIKR_Limit = 10,
+            check_is_a_target_and_not_is_all_neg_classes=True
+        )
         average = sum(perf_list) / len(perf_list)
         print("Dimensions", reduced_dimensions, " performance", average)
         results.append(
