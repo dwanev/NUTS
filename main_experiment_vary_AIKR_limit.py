@@ -60,6 +60,6 @@ def graph_results():
 
 
 if __name__ == '__main__':
-    vary_aikr_experiment()
-    # graph_results()
+    # vary_aikr_experiment()
+    graph_results()
 

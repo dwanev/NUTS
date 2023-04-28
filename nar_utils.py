@@ -183,6 +183,7 @@ def run_experiment_with_nalifier(nalifier, statements, num_properties, print_nar
     assert_ok_count = 0
     assert_bad_count = 0
     max_tv = 0.0
+    max_class = '<error>'
     t0 = time.time()
     for statement in statements:
         if len(statement) > len(ASSERT_PREFIX) and statement[:len(ASSERT_PREFIX)] == ASSERT_PREFIX:
@@ -193,7 +194,10 @@ def run_experiment_with_nalifier(nalifier, statements, num_properties, print_nar
                 print("run_experiment_with_nalifier()  Expected one of: ", list_of_valid_results)
             if "truth" in nar_result['answers'][0]:
                 tv = float(nar_result['answers'][0]['truth']['frequency'][:-1])
-                max_tv = max(tv, max_tv)
+                if tv > max_tv:
+                    max_tv = tv
+                    max_class = nar_result['answers'][0]['term'][
+                                nar_result['answers'][0]['term'].find("->") + 2:-1].strip()
             else:
                 tv = 0.0
             if str(nar_result['answers'][0]['term']) in list_of_valid_results and tv > 0.5:
@@ -210,7 +214,10 @@ def run_experiment_with_nalifier(nalifier, statements, num_properties, print_nar
         elif len(statement) >= len(ASSERT_TRUE_PREFIX) and statement[:len(ASSERT_TRUE_PREFIX)] == ASSERT_TRUE_PREFIX:
             if "truth" in nar_result['answers'][0]:
                 tv = float(nar_result['answers'][0]['truth']['frequency'][:-1])
-                max_tv = max(tv, max_tv)
+                if tv > max_tv:
+                    max_tv = tv
+                    max_class = nar_result['answers'][0]['term'][
+                                nar_result['answers'][0]['term'].find("->") + 2:-1].strip()
             else:
                 tv = 0.0
             if tv > 0.5:
@@ -225,7 +232,10 @@ def run_experiment_with_nalifier(nalifier, statements, num_properties, print_nar
         elif len(statement) >= len(ASSERT_FALSE_PREFIX) and statement[:len(ASSERT_FALSE_PREFIX)] == ASSERT_FALSE_PREFIX:
             if "truth" in nar_result['answers'][0]:
                 tv = float(nar_result['answers'][0]['truth']['frequency'][:-1])
-                max_tv = max(tv, max_tv)
+                if tv > max_tv:
+                    max_tv = tv
+                    max_class = nar_result['answers'][0]['term'][
+                                nar_result['answers'][0]['term'].find("->") + 2:-1].strip()
             else:
                 tv = 0.0
             if tv <= 0.5:
@@ -255,7 +265,7 @@ def run_experiment_with_nalifier(nalifier, statements, num_properties, print_nar
     if debug_print:
         print("run_experiment_with_nalifier()  Time taken for",num_properties, "properties", time.time() - t0, 'overall_ok', overall_ok)
 
-    return overall_ok, assert_ok_count, assert_bad_count, max_tv
+    return overall_ok, assert_ok_count, assert_bad_count, max_tv, max_class
 
 
 
