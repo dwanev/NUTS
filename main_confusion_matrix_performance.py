@@ -58,14 +58,14 @@ def graph_results():
     for w in results.keys():
         word_list.extend(results[w].keys())
     word_list = list(set(word_list))
-
-
-
     word_list.sort()
 
-    confusion_matrix = np.zeros( (len(word_list), len(word_list)) )
+    ground_truth_labels = word_list.copy()
+    ground_truth_labels.remove("<error>")
 
-    for r, ground_truth in enumerate(word_list):
+    confusion_matrix = np.zeros( (len(ground_truth_labels), len(word_list)) )
+    smallest_non_zero_value = 1.0
+    for r, ground_truth in enumerate(ground_truth_labels):
         total = 0.0
         if ground_truth in results:
             total = sum(results[ground_truth].values())
@@ -76,35 +76,32 @@ def graph_results():
                     v = results[ground_truth][prediction]
             if total > 0.0:
                 p = v/total
+                if p < smallest_non_zero_value:
+                    smallest_non_zero_value = p
             else:
                 p = 0.0
-
             confusion_matrix[r,c] = p
 
+    if word_list[0] == "<error>":
+        word_list[0] = "[None]"
+    else:
+        assert False, "Need to replace no answer label"
+
+
     from matplotlib.colors import LinearSegmentedColormap
-    c = ["white", "palegreen", "green", "darkgreen"]
-    v = [0, .01, .4,   1.]
+    c = ["white", "lightgray", "green", "darkgreen"]
+    v = [0, smallest_non_zero_value , .9,   1.]
     l = list(zip(v, c))
     cmap = LinearSegmentedColormap.from_list('rg', l, N=256)
+    sns.set(font_scale=0.4)
+    sns.heatmap(data=confusion_matrix, xticklabels=word_list, yticklabels=ground_truth_labels, cmap=cmap) # cmap=sns.color_palette("Blues",12)
+    plt.savefig(filename_prefix+'.png', dpi=400)
 
 
-    svm = sns.heatmap(confusion_matrix, annot=False, cmap=cmap, linecolor='white', linewidths=1)
-    figure = svm.get_figure()
-    figure.savefig(filename_prefix+'.png', dpi=300)
-
-    plt.clf()
-
-    sns.heatmap(data=confusion_matrix, xticklabels=word_list, yticklabels=word_list, cmap=cmap) # cmap=sns.color_palette("Blues",12)
-    sns.set(rc={'figure.figsize': (11.7, 8.27), "font.size": 2, "axes.titlesize": 2, "axes.labelsize": 2},
-            style="white")
-    # sns.set_context("paper", rc={"font.size":2, "axes.titlesize": 2, "axes.labelsize": 2})
-    # svm.set_xlabel('REDUCED DIMENSIONS', fontsize=10)
-    # svm.set_ylabel('AIKR Limit', fontsize=10)
-
-    plt.savefig(filename_prefix+'_b.png', dpi=1200)
 
 
 
 if __name__ == '__main__':
-    # build_data()
+    build_data()
     graph_results()
+
