@@ -65,6 +65,7 @@ def graph_results():
 
     confusion_matrix = np.zeros( (len(ground_truth_labels), len(word_list)) )
     smallest_non_zero_value = 1.0
+    greatest_non_one_value = 0.0
     for r, ground_truth in enumerate(ground_truth_labels):
         total = 0.0
         if ground_truth in results:
@@ -78,6 +79,8 @@ def graph_results():
                 p = v/total
                 if p < smallest_non_zero_value:
                     smallest_non_zero_value = p
+                if p > greatest_non_one_value:
+                    greatest_non_one_value = p
             else:
                 p = 0.0
             confusion_matrix[r,c] = p
@@ -89,19 +92,19 @@ def graph_results():
 
 
     from matplotlib.colors import LinearSegmentedColormap
-    c = ["white", "lightgray", "green", "darkgreen"]
-    v = [0, smallest_non_zero_value , .9,   1.]
+    c = ["white", "lightgray",               "lightblue", "lightblue", "blue", "blue",    "red",           "red",     "red",    "black", "black"]
+    v = [0,       smallest_non_zero_value ,  .80,          0.801,  0.901, 0.950,      0.951,       greatest_non_one_value, 0.998, 0.999,  1.]
     l = list(zip(v, c))
     cmap = LinearSegmentedColormap.from_list('rg', l, N=256)
     sns.set(font_scale=0.4)
     sns.heatmap(data=confusion_matrix, xticklabels=word_list, yticklabels=ground_truth_labels, cmap=cmap) # cmap=sns.color_palette("Blues",12)
     plt.savefig(filename_prefix+'.png', dpi=400)
 
-
+    print("Saved to", filename_prefix+'.png')
 
 
 
 if __name__ == '__main__':
-    build_data()
+    # build_data()
     graph_results()
 

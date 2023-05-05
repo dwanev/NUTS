@@ -61,7 +61,7 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
                                     perform_general_what_is_assert=False, # this is the form of the question we would need in a real word setting where ground truth is not knowm
                                     check_all_classes_in_loop_with_isa_question_asserts = False, # check the unlabeled instance with one query per class, is it bird?, is it one? is it two? etc
                                     check_all_unlabelled_instances_islike_a_labled_instance_of_the_same_class_with_asserts = False, # TODO get the performance of this
-                                    check_is_a_target_and_not_is_all_neg_classes = False,
+                                    check_is_a_target_and_not_is_all_neg_classes = False, # 0.64 second version of paper, submitted to editors, no response yet.
                                     confusion_matrix = {}
                                     ):
     """
@@ -291,15 +291,15 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
         print("Unknown Word", unknown_word, "Inference Time", "Average per instance", inference_average_time, "over ", unlabeled_count, "inferences")
 
 
-    if debug_print:
-        print("____________________________________")
-        print(" Now perform Inference Addendum with ", len(inference_statement_list), "statements")
-        print("____________________________________")
-    t0 = time.time()
-    # 'Extra Infer' with the model: show it unlabeled data
-    _extra_result, assert_ok_count, assert_bad_count, max_tv_addendum_label, label_2 = run_experiment_with_nalifier(nalifier, inference_addendum_statement_list, reduced_dimensions, print_nars=print_nars, reset_nars=False, debug_print=debug_print)
-    t1 = time.time()
     if len(inference_addendum_statement_list) > 0:
+        if debug_print:
+            print("____________________________________")
+            print(" Now perform Inference Addendum with ", len(inference_addendum_statement_list), "statements")
+            print("____________________________________")
+        t0 = time.time()
+        # 'Extra Infer' with the model: show it unlabeled data
+        _extra_result, assert_ok_count, assert_bad_count, max_tv_addendum_label, label_2 = run_experiment_with_nalifier(nalifier, inference_addendum_statement_list, reduced_dimensions, print_nars=print_nars, reset_nars=False, debug_print=debug_print)
+        t1 = time.time()
         print("____________________________________")
 
         if max_tv_correct_label < max_tv_addendum_label:
@@ -311,13 +311,13 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
 
         print("Result", result, "Addendum Result",  _extra_result, assert_ok_count, assert_bad_count)
 
-    if result:
-        assert unknown_word == max_prob_label
+        if result:
+            assert unknown_word == max_prob_label
 
-    if unknown_word not in confusion_matrix:
-        confusion_matrix[unknown_word] = {}
-    if max_prob_label not in confusion_matrix[unknown_word]:
-        confusion_matrix[unknown_word][max_prob_label] = 0
-    confusion_matrix[unknown_word][max_prob_label] += 1
+            if unknown_word not in confusion_matrix:
+                confusion_matrix[unknown_word] = {}
+            if max_prob_label not in confusion_matrix[unknown_word]:
+                confusion_matrix[unknown_word][max_prob_label] = 0
+            confusion_matrix[unknown_word][max_prob_label] += 1
 
     return result
