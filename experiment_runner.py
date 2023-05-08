@@ -12,7 +12,7 @@ from Nalifier import Nalifier
 from generate_nar_file_from_wav import _delete_file, load_file_return_torch_tensor, \
     log_mel_spectrogram, N_MELS, convert_tensor_to_statements, normalise_torch, filename_to_instance_name, \
     create_narsese_isa_question, create_narsese_islike_statement, \
-    create_narsese_islike_question, create_narsese_islike_question2
+    create_narsese_islike_question, create_narsese_islike_question2, create_narsese_whatis_question
 
 
 INPUT_DATA_DIMENSION = 8000
@@ -164,10 +164,12 @@ def run_experiment_with_reduced_dim(AIKR_Limit = 10,
             inference_statement_list.append(ASSERT_TRUE_PREFIX)
 
     # if we DO NOT know the unlabelled instance word in advance, this is the most realistic real word scenario.
-    if perform_general_what_is_assert: # for this we get terrible results (0%) hmmmm
+    if perform_general_what_is_assert:
+        # for create_narsese_islike_question we get terrible results (0%) hmmmm
+        # for create_narsese_whatis_question we get 0% . We get properties returned rather than classes.
         for unlabbeled_instance in unlabbeled_instance_list:
             expected_label = mel_by_instance_name[unlabbeled_instance]['label']
-            is_like_what_question = create_narsese_islike_question(unlabbeled_instance, tense="")
+            is_like_what_question = create_narsese_whatis_question(unlabbeled_instance, tense="") #
             inference_statement_list.append(is_like_what_question)
             # create an asserts
             inference_statement_list.append(ASSERT_PREFIX + json.dumps([expected_label]))

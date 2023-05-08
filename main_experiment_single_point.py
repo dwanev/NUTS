@@ -8,11 +8,11 @@ from figure_utils import create_boxplot_figure_save_to_file
 def single_point_repeat_experiment():
     examples_per_class = 20
     reduced_dimensions = 5
-    perform_is_a_specific_label_assert = True  # we check if the unlabbeled word is a "specific word". Only useful in testing where ground truth is known.
+    perform_is_a_specific_label_assert = False  # we check if the unlabbeled word is a "specific word". Only useful in testing where ground truth is known.
     perform_general_what_is_assert = False  # this is the form of the question we would need in a real word setting where ground truth is not knowm
-    check_all_classes_in_loop_with_isa_question_asserts = False  # check the unlabeled instance with one query per class, is it bird?, is it one? is it two? etc
+    check_all_classes_in_loop_with_isa_question_asserts = False  #
     check_all_unlabelled_instances_islike_a_labled_instance_of_the_same_class_with_asserts = False  #
-    check_is_a_target_and_not_is_all_neg_classes = False  # 0.64 second version of paper, submitted to editors, no response yet.
+    check_is_a_target_and_not_is_all_neg_classes = True  # 0.64 at 2 examples, 0.89 at 20 examples  # check the unlabeled instance with one query per class, is it bird?, is it one? is it two? etc
 
     results = []
     filename_prefix = "single_point_"

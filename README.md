@@ -1,6 +1,5 @@
-# NUTS
+# NUTS: raNdom dimensionality redUction non axiomaTic reasoning few Shot learner for perception
 Supplementary Material For the Paper
-
 
 
 # Setup
