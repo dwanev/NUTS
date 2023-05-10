@@ -6,7 +6,7 @@ from figure_utils import create_boxplot_figure_save_to_file
 
 
 def single_point_repeat_experiment():
-    examples_per_class = 20
+    examples_per_class = 100
     reduced_dimensions = 5
     perform_is_a_specific_label_assert = False  # we check if the unlabbeled word is a "specific word". Only useful in testing where ground truth is known.
     perform_general_what_is_assert = False  # this is the form of the question we would need in a real word setting where ground truth is not knowm

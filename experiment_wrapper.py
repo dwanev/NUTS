@@ -151,7 +151,7 @@ def loop_experiment(**kwargs):
             best_perf = perf
             with open(filename_prefix + "_best_matrix_for_num_examples_" + str(
                     examples_per_class) + "_reduced_dimensions_" + str(reduced_dimensions) + ".json", "w") as f:
-                json.dump(matrix.numpy().tolist(), f)
+                json.dump({"matrix":matrix.numpy().tolist(),"perf":best_perf}, f)
         perf_list.append(perf)
     print("--------------------")
     print(filename_prefix, " Results:", perf_list)

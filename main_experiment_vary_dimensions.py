@@ -84,7 +84,7 @@ def join_results_files():
 
     with open(filename_prefix + "_results_for_varying_reduced_dimensions_1_to_7.json", "w") as f:
         json.dump(results_all_1_to_7, f)
-    # manually rename 1_to_7 ....
+    # manually rename 1_to_7 to ....
 
 
 
