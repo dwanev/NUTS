@@ -137,6 +137,7 @@ def loop_experiment(**kwargs):
     examples_per_class = kwargs['examples_per_class']
     reduced_dimensions = kwargs['reduced_dimensions']
     filename_prefix = kwargs['filename_prefix']
+    AIKR_Limit = kwargs['AIKR_Limit']
 
     del kwargs['filename_prefix']
     del kwargs['repeats']
@@ -150,7 +151,7 @@ def loop_experiment(**kwargs):
             print("Best Perf", best_perf)
             best_perf = perf
             with open(filename_prefix + "_best_matrix_for_num_examples_" + str(
-                    examples_per_class) + "_reduced_dimensions_" + str(reduced_dimensions) + ".json", "w") as f:
+                    examples_per_class) + "_reduced_dimensions_" + str(reduced_dimensions) + "_AIKR_Limit_"+str(AIKR_Limit) + ".json", "w") as f:
                 json.dump({"matrix":matrix.numpy().tolist(),"perf":best_perf}, f)
         perf_list.append(perf)
     print("--------------------")
