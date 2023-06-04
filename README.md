@@ -1,9 +1,10 @@
 # Supplementary Material For the Paper "NUTS, NARS, and Speech"
 
-To investigate whether “Intelligence is the capacity of an information-processing system to adapt to its environment while operating with insufficient knowledge and resources" [29], we look at utilising the non axiomatic reasoning system (NARS) for speech recognition. This article presents NUTS: raNdom dimensionality redUction non axiomaTic reasoning few Shot learner for perception. NUTS consists of naive dimensionaility reduction, some pre-processing, and then non axiomatic reasoning (NARS). 
+To investigate whether “Intelligence is the capacity of an information-processing system to adapt to its environment while operating with 
+insufficient knowledge and resources", we look at utilising the non axiomatic reasoning system (NARS) for speech recognition. This article presents NUTS: raNdom dimensionality redUction non axiomaTic reasoning few Shot learner for perception. NUTS consists of naive dimensionaility reduction, some pre-processing, and then non axiomatic reasoning (NARS). 
 With only 2 training examples per class, NUTS achieves 64% accuracy, with 20 examples per class we achieve 90% accuracy, on the 35 word standard command dataset.  
 
-NUTS: raNdom dimensionality redUction non axiomaTic reasoning few Shot learner for perception https://link.springer.com/chapter/10.1007/978-3-031-33469-6_31
+Paper: https://link.springer.com/chapter/10.1007/978-3-031-33469-6_31
 
 With 2 Examples per class, we achive 64% accuracy, at 20 examples per class we achieve 90% accuracy (embedding space dimensions = 5). 
 
@@ -16,6 +17,8 @@ This is achieved with a low dimensional embedding space (5 dimensions), which re
 Confusion matrix (embedding space dimensions = 5, examples per class = 4)
 
 ![plot](./confusion_matrix_.png)
+
+[Slides](./Presentation AGI-Conf 2023_.pdf)
 
 
 # Reproduction
