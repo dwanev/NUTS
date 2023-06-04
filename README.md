@@ -18,7 +18,6 @@ Confusion matrix (embedding space dimensions = 5, examples per class = 4)
 
 ![plot](./confusion_matrix_.png)
 
-[Slides](./Presentation AGI-Conf 2023_.pdf)
 
 
 # Reproduction
